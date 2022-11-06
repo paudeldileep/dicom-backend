@@ -21,7 +21,8 @@ var upload = multer({
 router.post("/upload", upload.array("images", 5), async (req, res, next) => {
   const reqFiles = [];
   const filesName = [];
-  const url = req.protocol + "://" + req.get("host");
+  //const url=req.protocol +"://"+req.get("host")
+  const url = "https://" + req.get("host");
   for (var i = 0; i < req.files.length; i++) {
     reqFiles.push(url + "/public/" + req.files[i].filename);
     filesName.push(req.files[i].filename);
