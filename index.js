@@ -5,13 +5,15 @@ const bodyParser = require("body-parser");
 const api = require("./routes/upload");
 
 const app = express();
+
+app.use(cors());
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
     extended: false,
   })
 );
-app.use(cors());
+
 app.use("/public", express.static("public"));
 app.use("/api", api);
 const port = process.env.PORT || 4000;
