@@ -41,6 +41,50 @@ const saveMinImage = async (jpegFilePath) => {
     });
 };
 
+function generateLinearVOILUT(windowWidth, windowCenter) {
+  return function (modalityLutValue) {
+    return ((modalityLutValue - windowCenter) / windowWidth + 0.5) * 255.0;
+  };
+}
+
+function generateNonLinearVOILUT(voiLUT, roundModalityLUTValues) {
+  // We don't trust the voiLUT.numBitsPerEntry, mainly thanks to Agfa!
+  const bitsPerEntry = Math.max(...voiLUT.lut).toString(2).length;
+  const shift = bitsPerEntry - 8;
+  const minValue = voiLUT.lut[0] >> shift;
+  const maxValue = voiLUT.lut[voiLUT.lut.length - 1] >> shift;
+  const maxValueMapped = voiLUT.firstValueMapped + voiLUT.lut.length - 1;
+
+  return function (modalityLutValue) {
+    if (modalityLutValue < voiLUT.firstValueMapped) {
+      return minValue;
+    } else if (modalityLutValue >= maxValueMapped) {
+      return maxValue;
+    }
+    if (roundModalityLUTValues) {
+      return (
+        voiLUT.lut[Math.round(modalityLutValue) - voiLUT.firstValueMapped] >>
+        shift
+      );
+    }
+
+    return voiLUT.lut[modalityLutValue - voiLUT.firstValueMapped] >> shift;
+  };
+}
+
+const getVOILUT = (
+  windowWidth,
+  windowCenter,
+  voiLUT,
+  roundModalityLUTValues
+) => {
+  if (voiLUT) {
+    return generateNonLinearVOILUT(voiLUT, roundModalityLUTValues);
+  }
+
+  return generateLinearVOILUT(windowWidth, windowCenter);
+};
+
 const getLut = (data, windowWidth, windowCenter, invert, voiLUT) => {
   let minPixelValue = 0;
   let maxPixelValue = 0;
@@ -142,7 +186,7 @@ const createPngAsync = async (
   } catch (e) {
     console.log("eee:", e);
   }
-  this.saveMinImage(filePath);
+  saveMinImage(pngFilePath);
   if (jpegFilePath) {
     //Generate JPG
     createJpegAsync(cv, jpegFilePath);

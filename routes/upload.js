@@ -27,9 +27,9 @@ router.post("/upload", upload.array("images", 5), async (req, res, next) => {
     filesName.push(req.files[i].filename);
   }
 
-  setTimeout(() => {
-    createImages(filesName);
-  }, 5000);
+  // setTimeout(() => {
+  //   createImages(filesName);
+  // }, 5000);
 
   res.status(201).json({
     message: "Done upload!",

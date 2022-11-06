@@ -1,3 +1,3 @@
 const { createImages } = require("./utils/conversion");
 
-createImages(["2260af1e-519d-4261-ba36-5f71add56ed1-image-000005.dcm"]);
+createImages(["f5be8c3f-a902-40ed-8ba4-af1259f0109b-image-000009.dcm"]);
